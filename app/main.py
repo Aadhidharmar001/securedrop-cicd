@@ -34,7 +34,7 @@ app = FastAPI(
 def root():
     return {
         "application": "SecureDrop",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "status": "running",
     }
 
