@@ -59,12 +59,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Prepare SSH key
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          mkdir -p "$HOME/.ssh"
+          printf '%b' "$EC2_SSH_KEY" > "$HOME/.ssh/ec2_deploy_key"
+          chmod 600 "$HOME/.ssh/ec2_deploy_key"
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key_path: /home/runner/.ssh/ec2_deploy_key
           script: |
             sudo docker pull aadhidharmar/securedrop:latest
 
