@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-
   pull_request:
     branches:
       - main
@@ -53,7 +52,7 @@ jobs:
         run: |
           docker push aadhidharmar/securedrop:latest
 
-    deploy:
+  deploy:
     needs: docker
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
