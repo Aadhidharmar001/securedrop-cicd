@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+
   pull_request:
     branches:
       - main
@@ -51,3 +52,30 @@ jobs:
       - name: Push Docker image
         run: |
           docker push aadhidharmar/securedrop:latest
+
+  deploy:
+    needs: docker
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo docker pull aadhidharmar/securedrop:latest
+
+            sudo docker stop securedrop || true
+            sudo docker rm securedrop || true
+
+            sudo docker run -d \
+              --name securedrop \
+              -p 8000:8000 \
+              aadhidharmar/securedrop:latest
+
+            sleep 5
+
+            curl --fail http://localhost:8000/health
